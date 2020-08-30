@@ -41,12 +41,20 @@ steps:
   condition: succeededOrFailed()
 
 - task: AzureCLI@2
-  displayName: 'Deploy Connectin String'
+  displayName: 'Deploy Connection String'
   inputs:
     azureSubscription: 'DevOps-Practise'
     scriptType: 'ps'
     scriptLocation: 'inlineScript'
     inlineScript: 'az keyvault secret set -n $(secretname) --vault-name $(kvname) --value $(secretvalue)'
+- task: AzureCLI@2
+  displayName: 'SAConnString'
+  inputs:
+    azureSubscription: 'DevOps-Practise'
+    scriptType: 'ps'
+    scriptLocation: 'inlineScript'
+    inlineScript: 'az storage account show-connection-string -g $(rgname) -n $(saname)'
+
 - task: AzureRmWebAppDeployment@4
   displayName: 'Deploy to Test'
   inputs:
