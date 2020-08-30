@@ -129,8 +129,3 @@ stages:
                 appType: 'webApp'
                 WebAppName: 'azuredevops009'
                 packageForLinux: '$(build.artifactstagingdirectory)/**/*.zip'
-
-  
-
--
-
