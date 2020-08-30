@@ -72,12 +72,12 @@ stages:
               [
                  {
                   "name": key1,
-                  "value": $(key1),
+                  "value": '$(key1)',
                   "slotSetting": false
                  },
                  {
                   "name": key2,
-                  "value": $(key2),
+                  "value": '$(key2)',
                   "slotSetting": true
                  }
               ]
