@@ -40,6 +40,13 @@ steps:
     ArtifactName: '$(Parameters.ArtifactName)'
   condition: succeededOrFailed()
 
+- task: AzureCLI@2
+  displayName: 'Deploy Connectin String'
+  inputs:
+    azureSubscription: 'DevOps-Practise'
+    scriptType: 'ps'
+    scriptLocation: 'inlineScript'
+    inlineScript: 'az keyvault secret set -n $(secretname) --vault-name $(kvname) --value $(secretvalue)'
 - task: AzureRmWebAppDeployment@4
   displayName: 'Deploy to Test'
   inputs:
