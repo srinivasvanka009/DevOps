@@ -47,5 +47,5 @@ steps:
     azureSubscription: 'DevOps-Practise'
     appType: 'webApp'
     WebAppName: 'devopstest009'
-    packageForLinux: '$(System.DefaultWorkingDirectory)/**/*.zip'
+    packageForLinux: '$(build.artifactstagingdirectory)/**/*.zip'
 
