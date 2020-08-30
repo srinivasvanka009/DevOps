@@ -21,7 +21,7 @@ variables:
 stages:
 
 - stage: DEV
-  condition: and(succeeded(), eq(variables.isDev, true))
+  condition: coalesce(succeeded(), eq(variables.isDev, true))
   displayName: Stage - Build DEV And Deploy 
   jobs:
     - job: 
@@ -77,7 +77,7 @@ stages:
                 packageForLinux: '$(build.artifactstagingdirectory)/**/*.zip'
 
 - stage: Test
-  condition: and(succeeded(), eq(variables.isTest, true))
+  condition: coalesce(succeeded(), eq(variables.isTest, true))
   displayName: Stage - Build Test And Deploy 
   jobs:
     - job: 
