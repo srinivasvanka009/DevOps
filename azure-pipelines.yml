@@ -37,7 +37,7 @@ steps:
   displayName: 'Publish Artifact'
   inputs:
     PathtoPublish: '$(build.artifactstagingdirectory)'
-    ArtifactName: '$(Parameters.ArtifactName)'
+    ArtifactName: '$(ArtifactName)'
   condition: succeededOrFailed()
 
 - task: AzureCLI@2
