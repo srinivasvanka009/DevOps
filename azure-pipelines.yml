@@ -25,6 +25,25 @@ stages:
   jobs:
     - job: 
       steps:
+        - task: AzureAppServiceSettings@1
+          inputs:
+            azureSubscription: 'DevOps-Practise'
+            appName: 'devopstest009'
+            resourceGroupName: 'rgdevops'
+            appSettings: |
+              [
+                 {
+                  "name": "key1",
+                  "value": "$(key1)",
+                  "slotSetting": false
+                 },
+                 {
+                  "name": "key2",
+                  "value": "$(key2)",
+                  "slotSetting": true
+                 }
+              ]
+
         - task: NuGetToolInstaller@1
           displayName: 'Use NuGet 4.4.1'
           inputs:
@@ -63,25 +82,7 @@ stages:
             scriptType: 'ps'
             scriptLocation: 'inlineScript'
             inlineScript: 'az storage account show-connection-string -g $(rgname) -n $(saname)'
-        - task: AzureAppServiceSettings@1
-          inputs:
-            azureSubscription: 'DevOps-Practise'
-            appName: 'devopstest009'
-            resourceGroupName: 'rgdevops'
-            appSettings: |
-              [
-                 {
-                  "name": key1,
-                  "value": '$(key1)',
-                  "slotSetting": false
-                 },
-                 {
-                  "name": key2,
-                  "value": '$(key2)',
-                  "slotSetting": true
-                 }
-              ]
-
+        
         - task: AzureRmWebAppDeployment@4
           displayName: 'Deploy to Test'
           inputs:
