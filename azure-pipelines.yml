@@ -17,7 +17,63 @@ variables:
   isTest: $[eq(variables['Build.SourceBranch'], 'refs/heads/master')]
   isDev:  $[eq(variables['Build.SourceBranch'], 'refs/heads/latestbranch')]
 
+
 stages:
+- stage: Test
+  condition: and(succeeded(), eq(variables.isTest, true))
+  displayName: Stage - Build Test And Deploy 
+  jobs:
+    - job: 
+      steps:
+        - task: NuGetToolInstaller@1
+          displayName: 'Use NuGet 4.4.1'
+          inputs:
+            versionSpec: 4.4.1
+
+        - task: NuGetCommand@2
+          displayName: 'NuGet restore'
+          inputs:
+            restoreSolution: '$(solution)'
+
+        - task: VSBuild@1
+          displayName: 'Build solution'
+          inputs:
+            solution: '$(solution)'
+            msbuildArgs: '/p:DeployOnBuild=true /p:WebPublishMethod=Package /p:PackageAsSingleFile=true /p:SkipInvalidConfigurations=true /p:PackageLocation="$(build.artifactStagingDirectory)"'
+            platform: '$(buildPlatform)'
+            configuration: '$(buildConfiguration)'
+        - task: PublishBuildArtifacts@1
+          displayName: 'Publish Artifact'
+          inputs:
+            PathtoPublish: '$(build.artifactstagingdirectory)'
+            ArtifactName: '$(TestArtifactName1)'
+          condition: succeededOrFailed()
+
+        - task: AzureCLI@2
+          displayName: 'Deploy Connection String'
+          inputs:
+            azureSubscription: 'DevOps-Practise'
+            scriptType: 'ps'
+            scriptLocation: 'inlineScript'
+            inlineScript: 'az keyvault secret set -n $(secretname) --vault-name $(kvname) --value $(secretvalue)'
+        - task: AzureCLI@2
+          displayName: 'SAConnString'
+          inputs:
+            azureSubscription: 'DevOps-Practise'
+            scriptType: 'ps'
+            scriptLocation: 'inlineScript'
+            inlineScript: 'az storage account show-connection-string -g $(rgname) -n $(saname)'
+
+        - task: AzureRmWebAppDeployment@4
+          displayName: 'Deploy to Test'
+          inputs:
+            ConnectionType: 'AzureRM'
+            azureSubscription: 'DevOps-Practise'
+            appType: 'webApp'
+            WebAppName: 'devopstest009'
+            packageForLinux: '$(build.artifactstagingdirectory)/**/*.zip'
+
+
 - stage: DEV
   condition: and(succeeded(), eq(variables.isDev, true))
   displayName: Stage - Build DEV And Deploy 
@@ -76,57 +132,5 @@ stages:
 
   
 
-- stage: Test
-  condition: and(succeeded(), eq(variables.isTest, true))
-  displayName: Stage - Build Test And Deploy 
-  jobs:
-    - job: 
-      steps:
-        - task: NuGetToolInstaller@1
-          displayName: 'Use NuGet 4.4.1'
-          inputs:
-            versionSpec: 4.4.1
-
-        - task: NuGetCommand@2
-          displayName: 'NuGet restore'
-          inputs:
-            restoreSolution: '$(solution)'
-
-        - task: VSBuild@1
-          displayName: 'Build solution'
-          inputs:
-            solution: '$(solution)'
-            msbuildArgs: '/p:DeployOnBuild=true /p:WebPublishMethod=Package /p:PackageAsSingleFile=true /p:SkipInvalidConfigurations=true /p:PackageLocation="$(build.artifactStagingDirectory)"'
-            platform: '$(buildPlatform)'
-            configuration: '$(buildConfiguration)'
-        - task: PublishBuildArtifacts@1
-          displayName: 'Publish Artifact'
-          inputs:
-            PathtoPublish: '$(build.artifactstagingdirectory)'
-            ArtifactName: '$(TestArtifactName1)'
-          condition: succeededOrFailed()
-
-        - task: AzureCLI@2
-          displayName: 'Deploy Connection String'
-          inputs:
-            azureSubscription: 'DevOps-Practise'
-            scriptType: 'ps'
-            scriptLocation: 'inlineScript'
-            inlineScript: 'az keyvault secret set -n $(secretname) --vault-name $(kvname) --value $(secretvalue)'
-        - task: AzureCLI@2
-          displayName: 'SAConnString'
-          inputs:
-            azureSubscription: 'DevOps-Practise'
-            scriptType: 'ps'
-            scriptLocation: 'inlineScript'
-            inlineScript: 'az storage account show-connection-string -g $(rgname) -n $(saname)'
-
-        - task: AzureRmWebAppDeployment@4
-          displayName: 'Deploy to Test'
-          inputs:
-            ConnectionType: 'AzureRM'
-            azureSubscription: 'DevOps-Practise'
-            appType: 'webApp'
-            WebAppName: 'devopstest009'
-            packageForLinux: '$(build.artifactstagingdirectory)/**/*.zip'
+-
 
