@@ -40,5 +40,12 @@ steps:
     ArtifactName: '$(Parameters.ArtifactName)'
   condition: succeededOrFailed()
 
-
+- task: AzureRmWebAppDeployment@4
+  displayName: 'Deploy to Test'
+  inputs:
+    ConnectionType: 'AzureRM'
+    azureSubscription: 'DevOps-Practise'
+    appType: 'webApp'
+    WebAppName: 'devopstest009'
+    packageForLinux: '$(System.DefaultWorkingDirectory)/**/*.zip'
 
